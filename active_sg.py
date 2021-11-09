@@ -165,13 +165,29 @@ class ActiveSG(SeleniumBase):
         availability = set()
         timeslots = driver.find_element_by_xpath('//*[@id="formTimeslots"]')
         timeslots = timeslots.find_elements_by_xpath(".//div/div/div/div")
-        for time in timeslots:
-            available = time.find_element_by_xpath(".//input").get_attribute("name")
+        for timeslot in timeslots:
+            available_slot = timeslot.find_element_by_xpath(".//input")
+            available = available_slot.get_attribute("name")
             if available == "timeslots[]":
-                timing = time.find_element_by_xpath(".//label").get_attribute(
+                available_label = timeslot.find_element_by_xpath(".//label")
+                timing = timeslot.find_element_by_xpath(".//label").get_attribute(
                     "innerText"
                 )
                 availability.add(timing)
+                driver.execute_script("arguments[0].scrollIntoView();", available_label)
+                available_label.click()
+                addtocart_button = driver.find_element_by_xpath("//input[@id='addtocartbtn']")
+                ActionChains(driver).move_to_element(addtocart_button).perform()
+                addtocart_button.click()
+                time.sleep(1)
+                ok_button = driver.find_element_by_xpath("//button[@class='btn btn-primary bootbox-accept']")
+                ActionChains(driver).move_to_element(ok_button).perform()
+                ok_button.click()
+                time.sleep(3)
+                dd_button = driver.find_element_by_xpath("//input[@id='directdebit']")
+                ActionChains(driver).move_to_element(dd_button).perform()
+                dd_button.click()
+                time.sleep(20)
         return availability
 
     def _get_timing_for_court_loc(self, driver):
